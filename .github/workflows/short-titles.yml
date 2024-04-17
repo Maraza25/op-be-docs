@@ -18,14 +18,14 @@ jobs:
             title=$(jq -r '.issue.title' "$GITHUB_EVENT_PATH")
             title_length=${#title}
             if [ "$title_length" -ge 40 ]; then
-              echo "::error::Title length should be less than 40 characters."
+              echo "::error::Issue title length should be less than 40 characters."
               exit 1
             fi
           elif [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
             title=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
             title_length=${#title}
             if [ "$title_length" -ge 40 ]; then
-              echo "::error::Title length should be less than 40 characters."
+              echo "::error::Pull request title length should be less than 40 characters."
               exit 1
             fi
           fi
@@ -43,4 +43,5 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NUMBER: ${{ github.event.issue.number }} # or ${{ github.event.pull_request.number }}
+          NUMBER: ${{ github.event.issue.number }} # For issues
+          # NUMBER: ${{ github.event.pull_request.number }} # For pull requests
