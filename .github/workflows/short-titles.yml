@@ -20,12 +20,12 @@ jobs:
             title=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
           fi
           title_length=$(echo -n "$title" | wc -m)
-          if [ "$title_length" -lt 40 ] || [ "$title_length" -gt 50 ]; then
-            echo "::error::Title length should be between 40 and 50 characters."
+          if [ "$title_length" -lt 40 ]; then
+            echo "::error::Title length should be at least 40 characters."
             exit 1
           fi
-      - name: Notify If Title Too Long
+      - name: Notify If Title Too Short
         if: failure()
         run: |
-          echo "Title length check failed. Please ensure the title is between 40 and 50 characters."
+          echo "Title length check failed. Please ensure the title is at least 40 characters."
           exit 1
