@@ -1,0 +1,31 @@
+name: Enforce Short Title
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  enforce_short_title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Title Length
+        id: title_check
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "issues" ]; then
+            title=$(jq -r '.issue.title' "$GITHUB_EVENT_PATH")
+          elif [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+            title=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
+          fi
+          title_length=$(echo -n "$title" | wc -m)
+          if [ "$title_length" -lt 40 ] || [ "$title_length" -gt 50 ]; then
+            echo "::error::Title length should be between 40 and 50 characters."
+            exit 1
+          fi
+      - name: Notify If Title Too Long
+        if: failure()
+        run: |
+          echo "Title length check failed. Please ensure the title is between 40 and 50 characters."
+          exit 1
