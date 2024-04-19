@@ -10,6 +10,8 @@ on:
 jobs:
   enforce_short_title:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check Title Length
         id: title_check
