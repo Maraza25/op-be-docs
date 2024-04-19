@@ -44,4 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUMBER: ${{ github.event.issue.number }} # For issues
+          LABELS: ${{ secrets.REPO_TEAM }}
+          GH_REPO: ${{ github.repository }}
+          PROJECT: ${{ secrets.ASSIGN_PROJECT }}
           # NUMBER: ${{ github.event.pull_request.number }} # For pull requests
