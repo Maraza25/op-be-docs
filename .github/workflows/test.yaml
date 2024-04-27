@@ -1,38 +1,28 @@
-name: Yeni Branch Aç ve Issue'ya Yorum Ekle
-
+name: Notify on Branch Creation
 on:
-  issues:
+  create:
     types:
-      - opened
+      - branch  # Yalnızca yeni bir branch oluşturulduğunda tetiklenir
 
 jobs:
-  create_branch_and_comment:
+  notify_branch_creation:
     runs-on: ubuntu-latest
     steps:
-      - name: Issue Bilgilerini Al
-        id: issue_data
+      - name: Extract Branch Information
         uses: actions/github-script@v6
+        id: branch_info
         with:
           script: |
             return {
-              "issue_number": context.payload.issue.number,
-              "issue_title": context.payload.issue.title
+              "branch_name": context.ref.replace('refs/heads/', ''),
+              "branch_creator": context.actor,
+              "issue_number": context.issue.number if 'issue' in context else None
             }
 
-      - name: GitHub Reposunu Klonla
-        uses: actions/checkout@v3
-
-      - name: Yeni Branch Oluştur
-        run: |
-          branch_name="issue-${{ steps.issue_data.outputs.issue_number }}-${{ github.sha }}"
-          git checkout -b $branch_name
-          git push origin $branch_name
-
-      - name: Issue'ya Yorum Ekle
-        uses: actions/github-script@v6
+      - name: Comment on Related Issue
+        if: ${{ steps.branch_info.outputs.issue_number != null }}
+        uses: peter-evans/create-or-update-comment@v1
         with:
-          script: |
-            github.issues.createComment({
-              issue_number: ${{ steps.issue_data.outputs.issue_number }},
-              body: "Yeni branch açıldı: [${{ branch_name }}](${{ github.repository }}/tree/${{ branch_name }})"
-            })
+          issue-number: ${{ steps.branch_info.outputs.issue_number }}
+          body: |
+            @${{ steps.branch_info.outputs.branch_creator }} tarafından yeni bir branch oluşturuldu: `$branch_name`
