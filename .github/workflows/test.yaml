@@ -26,14 +26,13 @@ jobs:
         run: |
           branch_name="issue-${{ steps.issue_data.outputs.issue_number }}-${{ github.sha }}"
           git checkout -b $branch_name
-
-      - name: Değişiklikleri Pushla
-        run: |
           git push origin $branch_name
 
       - name: Issue'ya Yorum Ekle
-        uses: peter-evans/create-or-update-comment@v3
+        uses: actions/github-script@v6
         with:
-          issue-number: ${{ steps.issue_data.outputs.issue_number }}
-          body: |
-            Yeni branch açıldı: ${{ github.repository }}/tree/${{ branch_name }}
+          script: |
+            github.issues.createComment({
+              issue_number: ${{ steps.issue_data.outputs.issue_number }},
+              body: "Yeni branch açıldı: [${{ branch_name }}](${{ github.repository }}/tree/${{ branch_name }})"
+            })
