@@ -1,28 +1,19 @@
-name: Notify on Branch Creation
+name: Yeni Branch Oluşturuldu
+
 on:
-  create:
-    types:
-      - branch  # Yalnızca yeni bir branch oluşturulduğunda tetiklenir
+  push:
+    branches:
+      - "*" # Herhangi bir branch'e push olduğunda tetikler
 
 jobs:
-  notify_branch_creation:
+  yeni_branch:
     runs-on: ubuntu-latest
-    steps:
-      - name: Extract Branch Information
-        uses: actions/github-script@v6
-        id: branch_info
-        with:
-          script: |
-            return {
-              "branch_name": context.ref.replace('refs/heads/', ''),
-              "branch_creator": context.actor,
-              "issue_number": context.issue.number if 'issue' in context else None
-            }
 
-      - name: Comment on Related Issue
-        if: ${{ steps.branch_info.outputs.issue_number != null }}
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ steps.branch_info.outputs.issue_number }}
-          body: |
-            @${{ steps.branch_info.outputs.branch_creator }} tarafından yeni bir branch oluşturuldu: `$branch_name`
+    steps:
+      - name: Checkout Kod
+        uses: actions/checkout@v3
+
+      - name: Branch Bilgisi
+        run: |
+          echo "Yeni bir branch oluşturuldu!"
+          echo "Branch ismi: ${{ github.ref }}"
