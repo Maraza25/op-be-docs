@@ -1,34 +1,39 @@
-name: Change Issue Status on New Branch
+name: Yeni Branch Aç ve Issue'ya Yorum Ekle
 
 on:
-  create:
-    branches:
-      - '*'
+  issues:
+    types:
+      - opened
 
 jobs:
-  update_issue_status:
+  create_branch_and_comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Change issue status
-        uses: octokit/request-action@v2
+      - name: Issue Bilgilerini Al
+        id: issue_data
+        uses: actions/github-script@v6
         with:
-          route: GET /repos/:owner/:repo/commits/:commit_sha
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository }}
-          commit_sha: ${{ github.sha }}
-      
-      - name: Get associated issue
-        id: issue_info
-        run: |
-          issue_number=$(cat output.json | jq -r '.commit.message' | grep -oP '#\K\d+')
-          echo "::set-output name=issue_number::$issue_number"
+          script: |
+            return {
+              "issue_number": context.payload.issue.number,
+              "issue_title": context.payload.issue.title
+            }
 
-      - name: Update issue to Ready
-        if: steps.issue_info.outputs.issue_number != ''
-        uses: octokit/request-action@v2
+      - name: GitHub Reposunu Klonla
+        uses: actions/checkout@v3
+
+      - name: Yeni Branch Oluştur
+        run: |
+          branch_name="issue-${{ steps.issue_data.outputs.issue_number }}-${{ github.sha }}"
+          git checkout -b $branch_name
+
+      - name: Değişiklikleri Pushla
+        run: |
+          git push origin $branch_name
+
+      - name: Issue'ya Yorum Ekle
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          route: PATCH /repos/:owner/:repo/issues/:issue_number
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository }}
-          issue_number: ${{ steps.issue_info.outputs.issue_number }}
-          status: "Ready"
+          issue-number: ${{ steps.issue_data.outputs.issue_number }}
+          body: |
+            Yeni branch açıldı: ${{ github.repository }}/tree/${{ branch_name }}
