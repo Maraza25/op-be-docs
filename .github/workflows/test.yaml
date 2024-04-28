@@ -1,7 +1,7 @@
 name: Issue Status Değişikliği İzleme
 on:
   issues:
-    types: [edited]
+    types: [edited opened closed reopened synchronize ]  
 
 jobs:
   track-issue-status:
