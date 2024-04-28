@@ -1,17 +1,15 @@
-name: Issue Status Change Logger
-
+name: Issue Status Değişikliği İzleme
 on:
   issues:
-    types: [opened, closed, reopened, edited]
+    types: [edited]
 
 jobs:
-  log_issue_status_change:
+  track-issue-status:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Log Issue Status Change
+      - name: Durum Değişikliği Bildirimi
         run: |
-          echo "Issue ID: ${{ github.event.issue.number }}"
-          echo "Issue Title: ${{ github.event.issue.title }}"
-          echo "Issue State: ${{ github.event.issue.state }}"
-          echo "Issue Changed From: ${{ github.event.changes }} to ${{ github.event.issue.state }}"
+          echo "Bir issue'nun durumu değiştirildi."
+          echo "Issue: #${{ github.event.issue.number }}"
+          echo "Eski Durum: ${{ github.event.changes.state.from }}"
+          echo "Yeni Durum: ${{ github.event.issue.state }}"
