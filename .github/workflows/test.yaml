@@ -1,19 +1,17 @@
-name: Yeni Branch Oluşturuldu
+name: Issue Status Change Logger
 
 on:
-  push:
-    branches:
-      - "*" # Herhangi bir branch'e push olduğunda tetikler
+  issues:
+    types: [opened, closed, reopened, edited]
 
 jobs:
-  yeni_branch:
+  log_issue_status_change:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Kod
-        uses: actions/checkout@v3
-
-      - name: Branch Bilgisi
+      - name: Log Issue Status Change
         run: |
-          echo "Yeni bir branch oluşturuldu!"
-          echo "Branch ismi: ${{ github.ref }}"
+          echo "Issue ID: ${{ github.event.issue.number }}"
+          echo "Issue Title: ${{ github.event.issue.title }}"
+          echo "Issue State: ${{ github.event.issue.state }}"
+          echo "Issue Changed From: ${{ github.event.changes }} to ${{ github.event.issue.state }}"
