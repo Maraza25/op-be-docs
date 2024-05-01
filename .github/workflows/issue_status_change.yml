@@ -1,0 +1,19 @@
+name: Issue Status Change
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, closed, reopened]
+
+jobs:
+  log-change:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log Issue Change
+        run: |
+          echo "Issue Number: ${{ github.event.issue.number }}"
+          echo "Issue Title: ${{ github.event.issue.title }}"
+          echo "Issue State: ${{ github.event.issue.state }}"
+          echo "Action Triggered By: ${{ github.event.sender.login }}"
